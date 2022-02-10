@@ -92,7 +92,8 @@ county_patients %>%
     text = "Daily average per 100,000 residents",
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
-  )
+  ) %>% 
+  hc_elementId("area_level")
 
 county_patients %>% 
   filter(county_fips %in% county_fips_list) %>% 
@@ -124,7 +125,8 @@ county_patients %>%
     text = "Daily average per 100,000 residents",
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
-  )
+  ) %>% 
+  hc_elementId("county_level")
 
 county_patients %>% 
   filter(state_abb %in% state_abb_list) %>% 
@@ -159,5 +161,6 @@ county_patients %>%
     text = "Daily average per 100,000 residents",
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
-  )
+  ) %>% 
+  hc_elementId("state_level")
 ```

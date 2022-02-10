@@ -73,7 +73,11 @@ county_patients %>%
     pointFormat = "{point.x:%B %d, %Y}<br>{point.y:.2f}"
   ) %>% 
   hc_xAxis(title = FALSE) %>% 
-  hc_yAxis(title = FALSE) %>% 
+  hc_yAxis(
+    title = FALSE,
+    tickInterval = 0.5,
+    labels = list(format = "{value:.1f}")
+  ) %>% 
   hc_plotOptions(
     series = list(
       states = list(inactive = list(opacity = 1))

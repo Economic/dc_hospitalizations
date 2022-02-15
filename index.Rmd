@@ -25,7 +25,7 @@ county_pop <- read_csv("co-est2020.csv") %>%
   select(county_fips, pop = POPESTIMATE2020, county_name = CTYNAME)
 
 # source:
-# https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/uqq2-txqb
+# https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/anag-cw7u
 county_patients <- read_csv("COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_Facility.csv") %>% 
   rename(
     adults_sum = previous_day_admission_adult_covid_confirmed_7_day_sum,
@@ -164,3 +164,12 @@ county_patients %>%
   ) %>% 
   hc_elementId("state_level")
 ```
+
+
+The figures show daily averages, by week, of the number of adult and pediatric patients admitted to inpatient beds on the previous day who had confirmed COVID-19 at the time of admission. These averages are expressed as rates per 100,000 residents. The date of week above refers to start of the week: "February 4" means the week beginning February 4 and ending February 10, inclusive.
+
+The hospital admission data is facility-level data from healthdata.gov [here](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/uqq2-txqb). To calculate the rate for a given area, first calculate the average daily adult and pediatric admissions in each facility in that area: divide the facility-reported weekly sum of patients by the facility-reported weekly number of reports. Then divide the average admissions by the Census Vintage 2020 estimated resident population available [here](https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-counties-total.html). The code that does the analysis and creates this page is at https://github.com/Economic/dc_hospitalizations.
+
+The results are broadly similar, but not exactly the same, as CDC statistics presented in a less accessible form [here](https://covid.cdc.gov/covid-data-tracker/#new-hospital-admissions). One coverage difference is the CDC counts might include Veterans Affairs and some other facilities excluded in the healthdata.gov data.
+
+Last updated February 15, 2022 using vintage February 14, 2022 2:39 PM EST hospitalization data.

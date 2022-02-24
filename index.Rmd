@@ -128,11 +128,25 @@ county_patients %>%
   ) %>% 
   hc_elementId("county_level")
 
+us_pop <- read_csv("co-est2020.csv") %>% 
+  filter(SUMLEV == "040") %>% 
+  summarize(sum(POPESTIMATE2020)) %>% 
+  pull()
+
+us_overall <- county_patients %>% 
+  group_by(week) %>% 
+  summarize(admits = sum(admits)) %>% 
+  mutate(pop = us_pop) %>% 
+  ungroup() %>% 
+  mutate(state_abb = "US overall")
+
 county_patients %>% 
   filter(state_abb %in% state_abb_list) %>% 
   group_by(state_abb, week) %>% 
   summarize(across(admits|pop, sum)) %>% 
   ungroup() %>% 
+  bind_rows(us_overall) %>% 
+  mutate(state_abb = factor(state_abb, levels = c("DC", "MD", "VA", "US overall"))) %>% 
   mutate(rate = admits / pop * 100000) %>% 
   mutate(rate = round(rate, 2)) %>% 
   hchart(

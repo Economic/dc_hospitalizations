@@ -7,6 +7,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 
 library(tidyverse)
 library(highcharter)
+library(timetk)
 
 state_abb_list <- c("VA", "MD", "DC")
 county_fips_list <- c(
@@ -55,7 +56,7 @@ county_patients <- read_csv("COVID-19_Reported_Patient_Impact_and_Hospital_Capac
 
 ```
 
-```{r, fig.width=10,fig.height=5}
+```{r, fig.width=10,fig.height=6}
 county_patients %>% 
   filter(county_fips %in% county_fips_list) %>%
   group_by(week) %>% 
@@ -63,10 +64,9 @@ county_patients %>%
   ungroup() %>% 
   mutate(rate = admits / pop * 100000) %>% 
   mutate(rate = round(rate, 2)) %>% 
-  hchart(
-    "line", 
-    hcaes(x = week, y = rate),
-  ) %>% 
+  tk_xts(rate, date_var = week) %>% 
+  hchart() %>% 
+  hc_rangeSelector(enabled = FALSE) %>% 
   hc_tooltip(
     crosshairs = TRUE, 
     headerFormat = "<b>Eight-county area</b><br>",
@@ -76,10 +76,12 @@ county_patients %>%
   hc_yAxis(
     title = FALSE,
     tickInterval = 0.5,
-    labels = list(format = "{value:.1f}")
+    labels = list(format = "{value:.1f}"),
+    opposite = FALSE
   ) %>% 
   hc_plotOptions(
     series = list(
+      marker = list(enabled = TRUE, radius = 4),
       states = list(inactive = list(opacity = 1))
     )
   ) %>% 
@@ -94,7 +96,9 @@ county_patients %>%
     style = list(fontWeight = "bold", fontSize = "20px")
   ) %>% 
   hc_elementId("area_level")
+```
 
+```{r, fig.width=10,fig.height=5}
 county_patients %>% 
   filter(county_fips %in% county_fips_list) %>% 
   mutate(rate = admits / pop * 100000) %>% 
@@ -127,7 +131,9 @@ county_patients %>%
     style = list(fontWeight = "bold", fontSize = "20px")
   ) %>% 
   hc_elementId("county_level")
+```
 
+```{r, fig.width=10,fig.height=5}
 us_pop <- read_csv("co-est2020.csv") %>% 
   filter(SUMLEV == "040") %>% 
   summarize(sum(POPESTIMATE2020)) %>% 
@@ -186,4 +192,4 @@ The hospital admission data is facility-level data from healthdata.gov [here](ht
 
 The results are broadly similar, but not exactly the same, as CDC statistics presented in a less accessible form [here](https://covid.cdc.gov/covid-data-tracker/#new-hospital-admissions). One coverage difference is the CDC counts might include Veterans Affairs and some other facilities excluded in the healthdata.gov data.
 
-Last updated February 28, 2022 using vintage February 28, 2022 12:57 PM EST hospitalization data.
+Last updated March 7, 2022 using vintage March 7, 2022 1:58 PM EST hospitalization data.

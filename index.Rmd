@@ -192,4 +192,4 @@ The hospital admission data is facility-level data from healthdata.gov [here](ht
 
 The results are broadly similar, but not exactly the same, as CDC statistics presented in a less accessible form [here](https://covid.cdc.gov/covid-data-tracker/#new-hospital-admissions). One coverage difference is the CDC counts might include Veterans Affairs and some other facilities excluded in the healthdata.gov data.
 
-Last updated March 7, 2022 using vintage March 7, 2022 1:58 PM EST hospitalization data.
+Last updated March 15, 2022 using vintage March 14, 2022 2:10 PM EDT hospitalization data.

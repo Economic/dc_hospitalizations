@@ -186,10 +186,10 @@ county_patients %>%
 ```
 
 
-The figures show daily averages, by week, of the number of adult and pediatric patients admitted to inpatient beds on the previous day who had confirmed COVID-19 at the time of admission. These averages are expressed as rates per 100,000 residents. The date of week above refers to start of the week: "February 4" means the week beginning February 4 and ending February 10, inclusive.
+The figures show daily averages, by week, of the number of adult and pediatric patients admitted to inpatient beds on the previous day who had confirmed COVID-19 at the time of admission. These averages are expressed as rates per 100,000 residents. The date of week above refers to start of the week; for example, "February 4" is the week beginning February 4 and ending February 10, inclusive.
 
 The hospital admission data is facility-level data from healthdata.gov [here](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/anag-cw7u). To calculate the rate for a given area, first calculate the average daily adult and pediatric admissions in each facility in that area: divide the facility-reported weekly sum of patients by the facility-reported weekly number of reports. Then divide the average admissions by the Census Vintage 2020 estimated resident population available [here](https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-counties-total.html). The code that does the analysis and creates this page is at https://github.com/Economic/dc_hospitalizations.
 
 The results are broadly similar, but not exactly the same, as CDC statistics presented in a less accessible form [here](https://covid.cdc.gov/covid-data-tracker/#new-hospital-admissions). One coverage difference is the CDC counts might include Veterans Affairs and some other facilities excluded in the healthdata.gov data.
 
-Last updated March 21, 2022 using vintage March 21, 2022 2:20 PM EDT hospitalization data.
+Last updated March 28, 2022 using vintage March 28, 2022 2:46 PM EDT hospitalization data.

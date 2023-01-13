@@ -95,7 +95,11 @@ county_patients %>%
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
   ) %>% 
-  hc_elementId("area_level")
+  hc_elementId("area_level") %>% 
+  hc_exporting(
+      enabled = TRUE, # always enabled
+      filename = "eight-county-hospitalizations"
+      )
 ```
 
 ```{r, fig.width=10,fig.height=5}
@@ -130,7 +134,11 @@ county_patients %>%
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
   ) %>% 
-  hc_elementId("county_level")
+  hc_elementId("county_level") %>% 
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "county-level-hospitalizations"
+  )
 ```
 
 ```{r, fig.width=10,fig.height=5}
@@ -182,7 +190,11 @@ county_patients %>%
     align = "left",
     style = list(fontWeight = "bold", fontSize = "20px")
   ) %>% 
-  hc_elementId("state_level")
+  hc_elementId("state_level") %>% 
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "state-level-hospitalizations"
+  )
 ```
 
 The figures show daily averages, by week, of the number of adult and pediatric patients admitted to inpatient beds on the previous day who had confirmed COVID-19 at the time of admission. These averages are expressed as rates per 100,000 residents. The date of week above refers to start of the week; for example, "February 4" is the week beginning February 4 and ending February 10, inclusive.

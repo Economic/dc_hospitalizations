@@ -1,0 +1,138 @@
+---
+title: "DC area COVID hospitalizations: experimental measures"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+
+library(tidyverse)
+library(highcharter)
+library(kableExtra)
+
+state_abb_list <- c("VA", "MD", "DC")
+
+county_data <- tribble(
+  ~county_name, ~county_fips, ~lodes_emp,
+  "Alexandria City", 51510, 20625,
+  "Anne Arundel County", 24003, 13576,
+  "Arlington County", 51013, 36506,
+  "Charles County", 24017, 14663,
+  "District of Columbia", 11001, 211689,
+  "Fairfax County", 51059, 73105,
+  "Montgomery County", 24031, 90013,
+  "Prince George's County", 24033, 129304
+) %>% 
+  mutate(
+    county_fips = as.character(county_fips),
+    emp_share = lodes_emp / sum(lodes_emp)
+  )
+
+county_fips_list <- county_data %>% 
+  pull(county_fips)
+
+county_pop <- read_csv("co-est2020.csv") %>% 
+  mutate(county_fips = paste0(STATE, COUNTY)) %>% 
+  select(county_fips, pop = POPESTIMATE2020, county_name = CTYNAME)
+
+# source:
+# https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/anag-cw7u
+county_patients <- read_csv("COVID-19_Reported_Patient_Impact_and_Hospital_Capacity_by_Facility.csv") %>% 
+  rename(
+    adults_sum = previous_day_admission_adult_covid_confirmed_7_day_sum,
+    kids_sum = previous_day_admission_pediatric_covid_confirmed_7_day_sum,
+    adults_reports = previous_day_admission_adult_covid_confirmed_7_day_coverage,
+    kids_reports = previous_day_admission_pediatric_covid_confirmed_7_day_coverage
+  ) %>% 
+  # assume censored values and missings = 0
+  mutate(across(adults_sum|kids_sum, ~ if_else(.x == -999999 | is.na(.x), 0, .x))) %>%
+  mutate(adults_avg = if_else(
+    adults_reports > 0,
+    adults_sum / adults_reports,
+    0
+  )) %>% 
+  mutate(kids_avg = if_else(
+    kids_reports > 0,
+    kids_sum / kids_reports,
+    0
+  )) %>% 
+  group_by(county_fips = fips_code, week = collection_week) %>% 
+  summarize(
+    admits = sum(adults_avg + kids_avg),
+    state_abb = first(state)
+  ) %>% 
+  ungroup() %>% 
+  left_join(county_pop, by = "county_fips")
+
+```
+
+```{r, fig.width=10,fig.height=6}
+county_patients %>% 
+  filter(county_fips %in% county_fips_list) %>%
+  mutate(pop_share = pop / sum(pop), .by = week) %>% 
+  full_join(county_data, by = "county_fips") %>% 
+  summarize(
+    rate_pop_weight = sum(admits / pop * pop_share), 
+    rate_emp_weight = sum(admits / pop * emp_share),
+    .by = week
+  ) %>% 
+  pivot_longer(-week) %>% 
+  # scale to per 100000
+  mutate(value = value * 100000) %>% 
+  # pretty names
+  mutate(name = case_when(
+    name == "rate_pop_weight" ~ "Original, population-weighted",
+    name == "rate_emp_weight" ~ "Experimental, employment-weighted"
+  )) %>% 
+  hchart(
+    "line", 
+    hcaes(x = week, y = value, group = name),
+    showInLegend = TRUE
+  ) %>% 
+  hc_tooltip(
+    crosshairs = TRUE, 
+    headerFormat = "<b>{series.name}</b><br>",
+    pointFormat = "{point.x:%B %d, %Y}<br>{point.y:.2f}"
+  ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(
+    title = FALSE,
+    tickInterval = 0.5,
+    labels = list(format = "{value:.1f}")
+  ) %>% 
+  hc_plotOptions(
+    series = list(
+      states = list(inactive = list(opacity = 1))
+    )
+  ) %>% 
+  hc_title(
+    text = "Eight-county area confirmed COVID hospital admissions, by week",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "26px")
+  ) %>% 
+  hc_subtitle(
+    text = "Daily average per 100,000 residents",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "20px")
+  ) %>% 
+  hc_elementId("experimental-series") %>% 
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "experimental-hospitalizations"
+  )
+```
+
+The population-weighted version is the same as used by the original DC-area hospitalization tracker [here](https://economic.github.io/dc_hospitalizations/). The employment-weighted version weights county hospitalization rates by employment shares, where the employment share of an county is that county's share of total employment in DC coming from the eight counties, as reported by the Census OnTheMap [tool](https://onthemap.ces.census.gov/) for 2019.
+
+Each county's total employment in DC and associated share is the following:
+
+```{r}
+county_data %>%
+  column_to_rownames("county_name") %>% 
+  mutate(
+    emp_share = scales::label_percent(accuracy = 0.1)(emp_share),
+    lodes_emp = scales::label_comma()(lodes_emp)
+  ) %>% 
+  select("2019 employment in DC" = lodes_emp, "Share" = emp_share) %>% 
+  kbl(align = "r") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = F)
+```

@@ -1,0 +1,132 @@
+---
+title: "DC area Covid cases per 100k residents"
+output: pdf_document
+--- 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+
+library(tidyverse)
+library(highcharter)
+library(timetk)
+
+state_abb_list <- c("VA", "MD", "DC")
+
+county_data <- tribble(
+    ~county_name, ~county_fips, ~lodes_emp,
+    "Alexandria City", 51510, 20625,
+    "Anne Arundel County", 24003, 13576,
+    "Arlington County", 51013, 36506,
+    "Charles County", 24017, 14663,
+    "District of Columbia", 11001, 211689,
+    "Fairfax County", 51059, 73105,
+    "Montgomery County", 24031, 90013,
+    "Prince George's County", 24033, 129304
+) %>%
+    mutate(
+        county_fips = as.character(county_fips),
+        emp_share = lodes_emp / sum(lodes_emp)
+    )
+
+county_fips_list <- county_data %>%
+    pull(county_fips)
+
+county_pop <- read_csv("co-est2020.csv") %>%
+    mutate(county_fips = paste0(STATE, COUNTY)) %>%
+    select(county_fips, pop = POPESTIMATE2020, county_name = CTYNAME)
+
+# county cases
+# source:
+# https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni
+county_cases <- read_csv("Covid-19_Community_Levels_by_County.csv") %>%
+  filter(county_fips %in% county_fips_list) %>%
+  select(date_updated, county, county_fips, county_population, state, covid_cases_per_100k) %>% 
+  mutate(pop_share = county_population / sum(county_population), .by = date_updated) %>%
+  left_join(county_data) %>% 
+  arrange(date_updated)
+
+```
+
+```{r, fig.width=10,fig.height=6}
+county_cases %>% 
+  summarize(
+    wtd_cases_per_100k = sum(covid_cases_per_100k * emp_share), 
+    .by = date_updated) %>% 
+  pivot_longer(-date_updated) %>% 
+    mutate(name = case_when(
+    name == "wtd_cases_per_100k" ~ "Average weekly cases"
+  )) %>% 
+  hchart(
+    "line", 
+    hcaes(x = date_updated, y = value, group = name),
+    showInLegend = TRUE
+  ) %>%
+  hc_tooltip(
+    crosshairs = TRUE, 
+    headerFormat = "<b>{series.name}</b><br>",
+    pointFormat = "{point.x:%B %d, %Y}<br>{point.y:.2f}"
+  ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(
+    title = FALSE,
+    tickInterval = 0.5,
+    labels = list(format = "{value:.1f}")
+  ) %>% 
+  hc_plotOptions(
+    series = list(
+      states = list(inactive = list(opacity = 1))
+    )
+  ) %>% 
+  hc_title(
+    text = "Eight-county area employment weighted average COVID cases",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "26px")
+  ) %>% 
+  hc_subtitle(
+    text = "weekly cases per 100,000 residents",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "20px")
+  ) %>% 
+  hc_elementId("emp-weighted-series") %>% 
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "emp-weighted-cases"
+  )
+  
+```
+```{r, fig.width=10,fig.height=6}
+county_cases %>% 
+  hchart(
+    "line", 
+    hcaes(x = date_updated, y = covid_cases_per_100k, group = county_name),
+    showInLegend = TRUE
+  ) %>% 
+  hc_tooltip(
+    crosshairs = TRUE, 
+    headerFormat = "<b>{series.name}</b><br>",
+    pointFormat = "{point.x:%B %d, %Y}<br>{point.y:.2f}"
+  ) %>% 
+  hc_xAxis(title = FALSE) %>% 
+  hc_yAxis(title = FALSE) %>% 
+  hc_plotOptions(
+    series = list(
+      states = list(inactive = list(opacity = 1)),
+      marker = list(enabled = FALSE)
+    )
+  ) %>% 
+  hc_title(
+    text = "County-level confirmed COVID cases, by week",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "26px")
+  ) %>% 
+  hc_subtitle(
+    text = "Weekly cases per 100,000 residents",
+    align = "left",
+    style = list(fontWeight = "bold", fontSize = "20px")
+  ) %>% 
+  hc_elementId("county_level") %>% 
+  hc_exporting(
+    enabled = TRUE, # always enabled
+    filename = "county-level-cases"
+  )
+```

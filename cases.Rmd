@@ -1,6 +1,5 @@
 ---
 title: "DC area Covid cases per 100k residents"
-output: pdf_document
 --- 
 
 ```{r setup, include=FALSE}

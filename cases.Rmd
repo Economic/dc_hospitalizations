@@ -131,4 +131,4 @@ county_cases %>%
 ```
 The figures above show weekly (7-day total) covid cases per 100,000 residents in the DC area. The first figure shows the employment weighted average of the 8 county DMV area. Employment weights are described [here](https://economic.github.io/dc_hospitalizations/experimental.html). The data for [weekly cases](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni) are available at the county level and are updated weekly on thursdays.
 
-Last updated March 6 2023. 
+Last updated March 13 2023. 

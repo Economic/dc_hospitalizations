@@ -66,7 +66,7 @@ county_patients <- read_csv("COVID-19_Reported_Patient_Impact_and_Hospital_Capac
 # county cases
 # source:
 # https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni
-county_cases <- read_csv("Covid-19_Community_Levels_by_County.csv") %>%
+county_cases <- read_csv("United_States_COVID-19_Community_Levels_by_County.csv") %>%
   filter(county_fips %in% county_fips_list) %>%
   select(date_updated, county, county_fips, county_population, state, covid_cases_per_100k) %>% 
   mutate(pop_share = county_population / sum(county_population), .by = date_updated) %>%
@@ -244,43 +244,6 @@ county_patients %>%
 ```
 
 ```{r, fig.width=10,fig.height=5}
-county_cases %>% 
-  hchart(
-    "line", 
-    hcaes(x = date_updated, y = covid_cases_per_100k, group = county_name),
-    showInLegend = TRUE
-  ) %>% 
-  hc_tooltip(
-    crosshairs = TRUE, 
-    headerFormat = "<b>{series.name}</b><br>",
-    pointFormat = "{point.x:%B %d, %Y}<br>{point.y:.2f}"
-  ) %>% 
-  hc_xAxis(title = FALSE) %>% 
-  hc_yAxis(title = FALSE) %>% 
-  hc_plotOptions(
-    series = list(
-      states = list(inactive = list(opacity = 1)),
-      marker = list(enabled = FALSE)
-    )
-  ) %>% 
-  hc_title(
-    text = "County-level confirmed COVID cases, by week",
-    align = "left",
-    style = list(fontWeight = "bold", fontSize = "26px")
-  ) %>% 
-  hc_subtitle(
-    text = "Weekly cases per 100,000 residents",
-    align = "left",
-    style = list(fontWeight = "bold", fontSize = "20px")
-  ) %>% 
-  hc_elementId("county_level") %>% 
-  hc_exporting(
-    enabled = TRUE, # always enabled
-    filename = "county-level-cases"
-  )
-```
-
-```{r, fig.width=10,fig.height=5}
 us_pop <- read_csv("co-est2020.csv") %>% 
   filter(SUMLEV == "040") %>% 
   summarize(sum(POPESTIMATE2020)) %>% 
@@ -345,4 +308,4 @@ The results are broadly similar, but not exactly the same, as CDC statistics pre
 The figures above relating to number of cases show weekly (7-day total) covid cases per 100,000 residents in the DC area.The data for [weekly cases](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni) are available at the county level and are updated weekly on thursdays.
 
 
-Last updated March 13, 2023 using vintage March 13, 2023 1:05 PM EST hospitalization data and March 10, 2023 case data.
+Last updated March 20, 2023 using vintage March 20, 2023 1:11 PM EST hospitalization data and March 16, 2023 case data.

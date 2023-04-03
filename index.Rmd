@@ -308,4 +308,4 @@ The results are broadly similar, but not exactly the same, as CDC statistics pre
 The figures above relating to number of cases show weekly (7-day total) covid cases per 100,000 residents in the DC area.The data for [weekly cases](https://data.cdc.gov/Public-Health-Surveillance/United-States-COVID-19-Community-Levels-by-County/3nnm-4jni) are available at the county level and are updated weekly on thursdays.
 
 
-Last updated March 20, 2023 using vintage March 20, 2023 1:11 PM EST hospitalization data and March 16, 2023 case data.
+Last updated April 3, 2023 using vintage April 3, 2023 1:51 PM EST hospitalization data and March 30, 2023 case data.
